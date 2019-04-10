@@ -144,7 +144,7 @@ static void __FD_TEMPLATE_LAYOUT_CELL_PRIMARY_CALL_IF_CRASH_NOT_OUR_BUG__(void(^
     FDPrimaryCall([self fd_reloadData];);
 }
 
-+ (void)load {
+__attribute__((constructor)) static void initialize_UITableView(void) {
     // All methods that trigger height cache's invalidation
     SEL selectors[] = {
         @selector(reloadData),
@@ -161,8 +161,8 @@ static void __FD_TEMPLATE_LAYOUT_CELL_PRIMARY_CALL_IF_CRASH_NOT_OUR_BUG__(void(^
     for (NSUInteger index = 0; index < sizeof(selectors) / sizeof(SEL); ++index) {
         SEL originalSelector = selectors[index];
         SEL swizzledSelector = NSSelectorFromString([@"fd_" stringByAppendingString:NSStringFromSelector(originalSelector)]);
-        Method originalMethod = class_getInstanceMethod(self, originalSelector);
-        Method swizzledMethod = class_getInstanceMethod(self, swizzledSelector);
+        Method originalMethod = class_getInstanceMethod([UITableView class], originalSelector);
+        Method swizzledMethod = class_getInstanceMethod([UITableView class], swizzledSelector);
         method_exchangeImplementations(originalMethod, swizzledMethod);
     }
 }
